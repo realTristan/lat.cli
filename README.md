@@ -7,14 +7,17 @@
 
 # Install
 ```
-Clone the Repo
-  $ cd Desktop
-  $ git clone https://github.com/realTristan/lat.cli.git
-
-
-Add to $PATH
+MacOS:
+  $ cd desktop
+  $ curl "https://github.com/realTristan/lat.cli/blob/main/lat?raw=true" -o lat
   $ cd /usr/local/bin
-  $ cp /Users/tristan/Desktop/lat.cli/lat .
+  $ cp /Users/tristan/Desktop/lat .
+  
+Windows:
+  $ cd Desktop
+  $ curl "https://github.com/realTristan/lat.cli/blob/main/lat?raw=true" -o lat
+  $ Add to Environment Variables
+  
 ```
 
 # Example Install
