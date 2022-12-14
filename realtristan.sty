@@ -1,0 +1,166 @@
+% realtristan
+% 
+% (c) Buffalo Bill
+%
+%% This program can be redistributed and/or modified under the terms
+%% of the LaTeX Project Public License Distributed from CTAN archives
+%% in directory macros/latex/base/lppl.txt.
+% 
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{realtristan}
+\RequirePackage[fleqn]{amsmath}
+\RequirePackage[]{amssymb}
+\RequirePackage{graphicx}
+\RequirePackage{changepage}
+\RequirePackage{keyval}
+\RequirePackage[dvipsnames]{xcolor}
+\RequirePackage[colorlinks=true]{hyperref}
+\hypersetup{
+    linkcolor=NavyBlue,
+    citecolor=ForestGreen,
+    filecolor=Plum,
+    urlcolor=RubineRed,
+}
+
+% % % % % % % % % % % % % % % % % % % % % % %
+%                                           %
+%             Physics Commands              %
+%                                           %
+% % % % % % % % % % % % % % % % % % % % % % %
+% Energy and Momentum total variables
+\def\etot{E_{tot}}
+\def\ptot{P_{tot}}
+
+% Energy and Momentum Equations
+\define@key{energy_momentum}{m}{\def\m{#1}}
+\define@key{energy_momentum}{v}{\def\v{#1}}
+\define@key{energy_momentum}{k}{\def\k{#1}}
+\define@key{energy_momentum}{x}{\def\x{#1}}
+\def\m{m}\def\v{v}\def\k{k}\def\x{x}
+\def\ek#1{\setkeys{energy_momentum}{#1}
+  \frac{1}{2}(\m)(\v)^2
+}
+\def\ee#1{\setkeys{energy_momentum}{#1}
+  \frac{1}{2}(\k)(\x)^2
+}
+
+% Kinematic Equations
+\define@key{kinematics}{d}{\def\d{#1}}
+\define@key{kinematics}{t}{\def\t{#1}}
+\define@key{kinematics}{a}{\def\a{#1}}
+\define@key{kinematics}{v1}{\def\va{#1}}
+\define@key{kinematics}{v2}{\def\vb{#1}}
+\def\d{\Delta d}\def\t{\Delta t}\def\a{a}
+\def\va{v_1}\def\vb{v_2}
+\def\unimot#1{\setkeys{kinematics}{#1}
+  \va = \frac{\d}{\t}
+}
+\def\kina#1{\setkeys{kinematics}{#1}
+  (\d) = (\va)(\t) + \frac{1}{2}(\a)(\t)^2
+}
+\def\kinb#1{\setkeys{kinematics}{#1}
+  (\d) = (\vb)(\t) - \frac{1}{2}(\a)(\t)^2
+}
+\def\kinc#1{\setkeys{kinematics}{#1}
+  (\d) = \left(\frac{(\va) + (\vb)}{2}\right)(\t)
+}
+\def\kind#1{\setkeys{kinematics}{#1}
+  (\vb) = (\va) + (\a)(\t)
+}
+\def\kine#1{\setkeys{kinematics}{#1}
+  (\vb) = (\va) + 2(\a)(\d)
+}
+
+% % % % % % % % % % % % % % % % % % % % % % %
+%                                           %
+%             Align + Eq Commands           %
+%                                           %
+% % % % % % % % % % % % % % % % % % % % % % %
+% Easy Equation
+\def\eq#1{$#1$}
+
+% Left Align
+\def\lalign{\@ifstar\@lalign\@@lalign}
+\def\@lalign#1{\@fleqntrue
+  \begin{flalign*}#1\end{flalign*}
+  \leavevmode
+}
+\def\@@lalign#1{\@fleqntrue
+  \begin{flalign}#1\end{flalign}
+  \leavevmode
+}
+
+% Middle Align
+\def\malign{\@ifstar\@malign\@@malign}
+\def\@malign#1{\@fleqnfalse
+  \begin{align*}#1\end{align*}
+  \leavevmode
+}
+\def\@@malign#1{\@fleqnfalse
+  \begin{align}#1\end{align}
+  \leavevmode
+}
+
+
+% % % % % % % % % % % % % % % % % % % % % % %
+%                                           %
+%             Header Commands               %
+%                                           %
+% % % % % % % % % % % % % % % % % % % % % % %
+\def\header{\@ifstar\@header\@@header}
+\def\@header#1{\section*{#1}\label{sec:#1}}
+\def\@@header#1{\section{#1}\label{sec:#1}}
+\def\headref#1{\cref{#1}}
+
+
+% % % % % % % % % % % % % % % % % % % % % % %
+%                                           %
+%            Text\Href Commands             %
+%                                           %
+% % % % % % % % % % % % % % % % % % % % % % %
+\def\b#1{\textbf{#1}}
+\def\it#1{\textit{#1}}
+\def\bit#1{\textbf{\textit{#1}}}
+\def\email#1{\href{mailto:#1}{#1}}
+
+
+% % % % % % % % % % % % % % % % % % % % % % %
+%                                           %
+%              Image Commands               %
+%                                           %
+% % % % % % % % % % % % % % % % % % % % % % %
+% #1: Scale
+% #2: Image Path
+\define@key{images}{scale}{\def\scale{#1}}
+\define@key{images}{path}{\def\path{#1}}
+\def\scale{1}\def\path{}
+\def\image#1{\setkeys{images}{#1}
+  \includegraphics[scale=\scale]{\path}
+}
+
+
+% % % % % % % % % % % % % % % % % % % % % % %
+%                                           %
+%           Adjustment Commands             %
+%                                           %
+% % % % % % % % % % % % % % % % % % % % % % %
+\define@key{adjustments}{width}{\def\width{#1}}
+\def\width{0.5\textwidth}
+\def\flex#1#2{\setkeys{adjustments}{#1}
+  \begin{minipage}{\width}#2\end{minipage}
+  \leavevmode
+}
+\def\adjust#1#2{\setkeys{adjustments}{#1}
+  \begin{adjustwidth}{\width}{0pt}#2\end{adjustwidth}
+  \leavevmode
+}
+
+
+% % % % % % % % % %
+%                 %
+%   End of file   %
+%                 %
+% % % % % % % % % %
+\endinput
+%%
+%% End of file `realtristan.sty'.
