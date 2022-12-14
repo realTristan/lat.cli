@@ -43,16 +43,24 @@ pub async fn init() {
     // If the copy to the temporary lat.tmp executable
     // was a success...
     if res > 0 {
-        match fs::remove_file("lat") {
-            Ok(_) => match fs::rename("lat.tmp", "lat") {
+        // Depending on what operating system the user is on,
+        // change the file name from .exe to no .exe
+        let mut file_name: &str = "lat.exe";
+        if cfg!(target_os = "macos") {
+            file_name = "lat";
+        }
+
+        // After removing the old lat executable...
+        match fs::remove_file(file_name) {
+            Ok(_) => match fs::rename("lat.tmp", file_name) {
                 Ok(_) => println!("successfully updated lat.cli"),
                 Err(_) => {
-                    panic!("failed to convert lat.tmp to lat. use \"lat.tmp update\" to try again.")
+                    panic!("failed to convert lat.tmp to {}. use \"lat -u\" to try again.", file_name)
                 }
             },
             Err(_) => match fs::remove_file("lat.tmp") {
-                Ok(_) => panic!("failed to remove existing lat file."),
-                Err(_) => panic!("failed to remove existing lat file and temporary lat file. please visit your $PATH to update manually."),
+                Ok(_) => panic!("failed to remove existing {} file.", file_name),
+                Err(_) => panic!("failed to remove existing {} file and lat.tmp file. please visit your $PATH to update manually.", file_name),
             },
         }
     }
