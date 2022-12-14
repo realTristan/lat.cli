@@ -11,8 +11,8 @@ MacOS:
   $ curl "https://github.com/realTristan/lat.cli/blob/main/lat?raw=true" -o /usr/local/bin/lat
   
 Windows:
-  $ mkdir C:\Users\Admin\lat.cli
-  $ curl "https://github.com/realTristan/lat.cli/blob/main/lat.exe?raw=true" -o C:\Users\Admin\lat.cli\lat.exe
+  $ mkdir C:\lat.cli
+  $ curl "https://github.com/realTristan/lat.cli/blob/main/lat.exe?raw=true" -o C:\lat.cli\lat.exe
   $ Add to Environment Variables
 ```
 
