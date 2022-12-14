@@ -8,10 +8,7 @@
 # Install
 ```
 MacOS:
-  $ cd desktop
-  $ curl "https://github.com/realTristan/lat.cli/blob/main/lat?raw=true" -o lat
-  $ cd /usr/local/bin
-  $ cp /Users/tristan/Desktop/lat .
+  $ curl "https://github.com/realTristan/lat.cli/blob/main/lat?raw=true" -o /usr/local/bin/lat
   
 Windows:
   $ cd Desktop
