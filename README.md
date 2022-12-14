@@ -19,11 +19,6 @@ Windows:
 # Example Install
 ```
 $ cd your_latex_directory
-
-$ lat -install realTristan/realtristan.sty
-
-or
-
 $ lat -i realTristan/realtristan.sty
 ```
 
