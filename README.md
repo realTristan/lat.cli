@@ -3,7 +3,7 @@
 
 # About
 - lat.cli is an easy-to-use and lightweight terminal CLI for importing .sty files from github into your project.
-- lat.cli was built with the programming language "Rust" to ensure minimal memory usage and maximum speed.
+- lat.cli was built with Rust to ensure minimal memory usage and maximum speed.
 
 # Install
 ```
