@@ -5,14 +5,14 @@ use std::io;
 pub async fn init() {
     // Send the http request to the github url
     let resp = reqwest::get("https://raw.githubusercontent.com/realTristan/lat.cli/main/lat").await;
-    let resp = match resp {
+    let resp: reqwest::Response = match resp {
         Ok(r) => r,
         Err(e) => panic!("failed to fetch version url. {:?}", e),
     };
 
     // Get the request body
     let body = resp.text().await;
-    let body = match body {
+    let body: String = match body {
         Ok(b) => b,
         Err(e) => panic!("failed to reach version body {:?}", e),
     };
