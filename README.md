@@ -14,7 +14,6 @@ Windows:
   $ cd Desktop
   $ curl "https://github.com/realTristan/lat.cli/blob/main/lat.exe?raw=true" -o lat.exe
   $ Add to Environment Variables
-  
 ```
 
 # Example Install
