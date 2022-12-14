@@ -28,7 +28,9 @@ async fn main() {
 
     // Get the query (install, i, etc.)
     if args.len() < 2 {
-        println!("not enough arguments provided. ex: lat install realTristan/realtristan.sty");
+        println!(
+            "\nWelcome to lat.cli\n\n  Import Package:\n    $ lat -install (github_user)/(repo_name.sty)\n    $ lat -install realTristan/realtristan.sty\n\n  Update CLI:\n    $ lat -update\n"
+        );
         return;
     }
     let query: &str = &args[1];
@@ -36,7 +38,7 @@ async fn main() {
     // Install command
     if query == "-i" || query == "-install" {
         if args.len() < 3 {
-            println!("not enough arguments provided. ex: lat install realTristan/realtristan.sty");
+            println!("not enough arguments provided. ex: lat -install realTristan/realtristan.sty");
             return;
         }
         install::init(&args).await;
