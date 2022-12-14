@@ -25,6 +25,7 @@ pub async fn init(args: &Vec<String>) {
     // Create new import file
     create_new_import_file(dir, import, contents).await;
 }
+
 // The get_user_and_import() function is used to get the
 // github user and the import name. If you want to make
 // your own import, create the repo with the same name as
