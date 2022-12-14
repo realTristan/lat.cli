@@ -6,7 +6,7 @@
 - lat.cli was built with the programming language "Rust" to ensure minimal memory usage and maximum speed.
 
 # Install
-```cpp
+```
 Clone the Repo
   $ cd Desktop
   $ git clone https://github.com/realTristan/lat.cli.git
@@ -18,7 +18,7 @@ Add to $PATH
 ```
 
 # Example
-```cpp
+```
 $ cd your_latex_directory
 $ lat install realTristan/realtristan.sty --release
 ```
