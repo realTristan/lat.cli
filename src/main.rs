@@ -5,7 +5,11 @@ use std::io::Write;
 
 //
 // Example Import:
-//      cargo run install realTristan/realtristan.sty
+//      cargo run install realTristan/realtristan.sty --release
+//
+//      or
+//
+//      lat install realTristan/realtristan.sty
 //
 
 // Main function
@@ -13,6 +17,14 @@ use std::io::Write;
 async fn main() {
     // Get the provided arguments and query
     let args: Vec<String> = env::args().collect();
+
+    // Make sure the user provided enough args
+    if args.len() < 3 {
+        println!("not enough arguments provided. ex: lat install realTristan/realtristan.sty");
+        return;
+    }
+
+    // Get the query (install, i, etc.)
     let query: &str = &args[1];
 
     // If the user's trying to install an import..
