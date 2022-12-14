@@ -20,7 +20,12 @@ Add to $PATH
 # Example
 ```
 $ cd your_latex_directory
-$ lat install realTristan/realtristan.sty --release
+
+$ lat install realTristan/realtristan.sty
+
+or
+
+$ lat i realTristan/realtristan.sty
 ```
 
 
