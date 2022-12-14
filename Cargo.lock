@@ -303,7 +303,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "lat"
+name = "lat_cli"
 version = "0.1.0"
 dependencies = [
  "reqwest",
