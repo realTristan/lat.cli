@@ -17,15 +17,24 @@ Add to $PATH
   $ cp /Users/tristan/Desktop/lat.cli/lat .
 ```
 
-# Example
+# Example Install
 ```
 $ cd your_latex_directory
 
-$ lat install realTristan/realtristan.sty
+$ lat -install realTristan/realtristan.sty
 
 or
 
-$ lat i realTristan/realtristan.sty
+$ lat -i realTristan/realtristan.sty
+```
+
+# Example Update
+```
+$ lat -update realTristan/realtristan.sty
+
+or
+
+$ lat -up realTristan/realtristan.sty
 ```
 
 

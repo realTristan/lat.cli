@@ -1,13 +1,23 @@
 use std::env;
 mod install;
+mod update;
 
 //
 // Example Import:
-//      cargo run install realTristan/realtristan.sty --release
+//      cargo run -- -install realTristan/realtristan.sty --release
 //
 //      or
 //
-//      lat install realTristan/realtristan.sty
+//      lat -install realTristan/realtristan.sty
+//
+
+//
+// Example Update:
+//      cargo run -- -up --release
+//
+//      or
+//
+//      lat -update
 //
 
 // Main function
@@ -23,12 +33,16 @@ async fn main() {
     }
     let query: &str = &args[1];
 
-    // If the user's trying to install an import..
-    if query == "i" || query == "install" {
+    // Install command
+    if query == "-i" || query == "-install" {
         if args.len() < 3 {
             println!("not enough arguments provided. ex: lat install realTristan/realtristan.sty");
             return;
         }
         install::init(&args).await;
+    }
+    // Update Command
+    else if query == "-up" || query == "-update" {
+        update::init().await;
     }
 }
