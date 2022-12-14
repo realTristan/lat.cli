@@ -9,10 +9,16 @@ The repository name must be the same name as the .sty file name.
 
 
 
-# Adding to $PATH
+# Install
 ```cpp
-$ cd /usr/local/bin
-$ cp /Users/tristan/Desktop/lat.cli/lat .
+Clone the Repo
+  $ cd Desktop
+  $ git clone https://github.com/realTristan/lat.cli.git
+
+
+Add to $PATH
+  $ cd /usr/local/bin
+  $ cp /Users/tristan/Desktop/lat.cli/lat .
 ```
 
 # Example
