@@ -10,13 +10,13 @@ Terminal CLI for importing GitHub '.sty' files into your LaTeX project.
 
 
 # Adding to $PATH
-```rust
+```cpp
 $ cd /usr/local/bin
 $ cp /Users/tristan/Desktop/lat.cli/lat .
 ```
 
 # Example
-```rust
+```cpp
 $ cd your_latex_directory
 $ lat install realTristan/realtristan.sty --release
 ```
