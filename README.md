@@ -27,15 +27,6 @@ or
 $ lat -i realTristan/realtristan.sty
 ```
 
-# Example Update
-```
-$ lat -update
-
-or
-
-$ lat -u
-```
-
 
 # Making your own import
 The repository name must be the same name as the .sty file name.
