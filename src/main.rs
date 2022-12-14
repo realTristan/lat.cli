@@ -13,7 +13,7 @@ mod update;
 
 //
 // Example Update:
-//      cargo run -- -up --release
+//      cargo run -- -update --release
 //
 //      or
 //
@@ -42,7 +42,7 @@ async fn main() {
         install::init(&args).await;
     }
     // Update Command
-    else if query == "-up" || query == "-update" {
+    else if query == "-u" || query == "-update" {
         update::init().await;
     }
 }

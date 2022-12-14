@@ -33,11 +33,11 @@ $ lat -i realTristan/realtristan.sty
 
 # Example Update
 ```
-$ lat -update realTristan/realtristan.sty
+$ lat -update
 
 or
 
-$ lat -up realTristan/realtristan.sty
+$ lat -u
 ```
 
 
