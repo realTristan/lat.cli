@@ -1,7 +1,9 @@
 # lat.cli ![Stars](https://img.shields.io/github/stars/realTristan/lat.cli?color=brightgreen) ![Watchers](https://img.shields.io/github/watchers/realTristan/lat.cli?label=Watchers)
 ![LaTeX_logo](https://user-images.githubusercontent.com/75189508/207660487-afff32e3-9ac2-474e-b3b2-36572537e272.png)
 
-Terminal CLI for importing GitHub '.sty' files into your LaTeX project.
+# About
+- lat.cli is an easy-to-use and lightweight terminal CLI for importing GitHub '.sty' files into your LaTeX project.
+- lat.cli was built with the programming language "Rust" to ensure minimal memory usage and maximum speed.
 
 # Install
 ```cpp
