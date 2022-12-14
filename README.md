@@ -16,7 +16,7 @@ Windows:
   $ Add to Environment Variables
 ```
 
-# Example Install
+# Example Import
 ```
 $ cd your_latex_directory
 $ lat -i realTristan/realtristan.sty
