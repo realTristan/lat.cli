@@ -22,7 +22,6 @@ $ cd your_latex_directory
 $ lat -i realTristan/realtristan.sty
 ```
 
-
 # Making your own import
 The repository name must be the same name as the .sty file name.
 
