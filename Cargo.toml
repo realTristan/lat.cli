@@ -1,5 +1,5 @@
 [package]
-name = "lat_cli"
+name = "lat"
 version = "0.1.2"
 edition = "2021"
 
