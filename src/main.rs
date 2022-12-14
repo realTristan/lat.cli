@@ -39,7 +39,12 @@ async fn main() {
         let contents: String = get_import_contents(user, import).await;
 
         // Get current working directory
-        let dir: &str = &get_current_dir();
+        let dir: Option<String> = get_current_dir();
+        if dir == None {
+            println!("failed to get current working directory.");
+            return;
+        }
+        let dir: &str = &dir.unwrap();
 
         // Create new import file
         create_new_import_file(dir, import, contents)
@@ -67,32 +72,52 @@ async fn get_import_contents(user: &str, import: &str) -> String {
     );
 
     // Send the http request to the github url
-    let resp: reqwest::Response = reqwest::get(path).await.unwrap();
-    return resp.text().await.unwrap();
+    let resp = reqwest::get(path).await;
+    let resp: reqwest::Response = match resp {
+        Ok(r) => r,
+        Err(e) => panic!("failed to request provided url. {:?}", e),
+    };
+    let text = resp.text().await;
+    return match text {
+        Ok(text) => text,
+        Err(e) => panic!("failed to extract http response text. {:?}", e),
+    };
 }
 
 // Get the current working directory. This is where
 // the folder containing the imports will be located.
 // %CURRENT_DIR%/file.sty..
-fn get_current_dir() -> String {
+fn get_current_dir() -> Option<String> {
     let res = env::current_dir();
-    match res {
-        Ok(path) => path.into_os_string().into_string().unwrap(),
-        Err(_) => "failed to get working directory".to_string(),
-    }
+    return match res {
+        Ok(path) => Some(path.into_os_string().into_string().unwrap()),
+        Err(_) => None,
+    };
 }
 
 // The create_new_import_file() is used to create the
 // new .sty file with the import name and write the
 // contents into the file
 fn create_new_import_file(dir: &str, import: &str, contents: String) {
+    // If the import already exists, return the function.
     if import_already_exists(dir, import.to_string()) {
         return;
     }
+
+    // Create a new file with the name of the provided import.
     let file = File::create(format!("{}/{}", dir, import));
-    let mut file: File = file.unwrap();
-    file.write_all(contents.as_bytes())
-        .expect("failed to write to import file");
+    let mut file = match file {
+        Ok(file) => file,
+        Err(e) => panic!("failed to create new import file. {:?}", e),
+    };
+
+    // Write the import contents (the text scraped from the github repo file)
+    // to the new import file.
+    let write_res = file.write_all(contents.as_bytes());
+    match write_res {
+        Ok(_) => println!("successfully imported package: {}", import),
+        Err(e) => panic!("failed to write import data to import file. {:?}", e),
+    }
 }
 
 // Check if the import already exists. This function
@@ -101,8 +126,8 @@ fn create_new_import_file(dir: &str, import: &str, contents: String) {
 // on what's more convenient.
 fn import_already_exists(dir: &str, import: String) -> bool {
     let data = fs::read(format!("{}/{}", dir, import));
-    match data {
+    return match data {
         Ok(_) => true,
         Err(_) => false,
-    }
+    };
 }
