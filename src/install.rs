@@ -43,7 +43,7 @@ async fn import_with_url(dir: &str, path: &str) {
     let split_path: Vec<&str> = path.split("/").collect();
 
     // If the provided url is just the repo url...
-    if split_path.len() < 5 {
+    if split_path.len() <= 6 {
         // Create the .sty file from the repo content
         return create_import_with_repo(dir, path).await;
     }
@@ -103,12 +103,16 @@ async fn create_import_with_repo(dir: &str, path: &str) {
 
     // If the provided url has .git on the end of it
     if _path.ends_with(".git") || _path.ends_with(".git/") {
-        let index = path.find(".git");
+        let index: Option<usize> = path.find(".git");
         if index != None {
             // Remove the .git from the url
             _path = path[..index.unwrap()].to_string();
         }
     }
+
+    // Convert the url to the github api url.
+    let split_path: Vec<&str> = _path.split("/").collect();
+    _path = format!("https://api.github.com/repos/{}/{}/contents/", split_path[3], split_path[4]);
 
     // Get the new .sty file path from the repo url
     let _path_: Option<String> = get_import_url_from_repo(&_path).await;
@@ -127,28 +131,40 @@ async fn create_import_with_repo(dir: &str, path: &str) {
 // The get_import_url_from_repo() function is used to get the
 // .sty file download url from the provided github repo.
 async fn get_import_url_from_repo(path: &str) -> Option<String> {
-    let resp = reqwest::get(path).await;
+    let client: reqwest::Client = reqwest::Client::new();
+    let resp = client.get(path)
+        .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36")
+        .send().await;
     let resp: reqwest::Response = match resp {
         Ok(r) => r,
         Err(e) => panic!("failed to request provided url. {:?}", e),
     };
-    let text = resp.text().await;
-    let text: String = match text {
-        Ok(text) => text,
-        Err(e) => panic!("failed to extract http response text. {:?}", e),
+
+    // Get the response body
+    let body: String = match resp.text().await {
+        Ok(body) => body,
+        Err(e) => panic!("failed to extract http response body. {:?}", e),
     };
-    let json: Value = match serde_json::from_str(&text) {
+    let json: Value = match serde_json::from_str(&body) {
         Ok(j) => j,
         Err(e) => panic!("failed to parse lat.data.json. {:?}", e),
     };
 
-    for j in json.as_object() {
-        let name: Option<&Value> = j.get("name");
+    // Convert the json response to an array
+    let json: &Vec<Value> = match json.as_array() {
+        Some(j) => j,
+        None => panic!("failed to parse lat.data.json.")
+    };
+
+    // Iterate over the array to find the .sty file
+    for map in json {
+        let name: Option<&Value> = map.get("name");
         if name != None {
-            if name.unwrap().to_string().ends_with(".sty") {
-                let download_url: Option<&Value> = j.get("download_url");
+            let name: String = name.unwrap().to_string();
+            if name.ends_with(".sty\"") {
+                let download_url: Option<&Value> = map.get("download_url");
                 if download_url != None {
-                    return Some(download_url.unwrap().to_string());
+                    return Some(download_url.unwrap().to_string().replace("\"", ""));
                 }
             }
         }
@@ -177,15 +193,17 @@ fn extract_import_name(path: &str) -> String {
 // provided path.
 async fn get_import_contents(path: &str) -> String {
     // Send the http request to the github url
-    let resp = reqwest::get(path).await;
+    let client: reqwest::Client = reqwest::Client::new();
+    let resp = client.get(path)
+        .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36")
+        .send().await;
     let resp: reqwest::Response = match resp {
         Ok(r) => r,
         Err(e) => panic!("failed to request provided url. {:?}", e),
     };
-    let text = resp.text().await;
-    return match text {
-        Ok(text) => text,
-        Err(e) => panic!("failed to extract http response text. {:?}", e),
+    return match resp.text().await {
+        Ok(body) => body,
+        Err(e) => panic!("failed to extract http response body. {:?}", e),
     };
 }
 

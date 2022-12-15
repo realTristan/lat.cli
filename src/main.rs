@@ -46,6 +46,8 @@ async fn main() {
         );
         return;
     }
+
+    // Get the query argument
     let query: &str = &args[1];
 
     // Install command

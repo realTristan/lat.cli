@@ -4,7 +4,10 @@ use std::io;
 // Initialize the update command
 pub async fn init(bin_path: &str) {
     // Send the http request to the github url
-    let resp = reqwest::get("https://raw.githubusercontent.com/realTristan/lat.cli/main/lat").await;
+    let client: reqwest::Client = reqwest::Client::new();
+    let resp = client.get("https://raw.githubusercontent.com/realTristan/lat.cli/main/lat")
+        .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36")
+        .send().await;
     let resp: reqwest::Response = match resp {
         Ok(r) => r,
         Err(e) => panic!("failed to fetch version url. {:?}", e),
