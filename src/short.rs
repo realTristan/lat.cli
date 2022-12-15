@@ -1,4 +1,3 @@
-use core::panic;
 use serde_json::{Map, Value};
 use std::{
     fs::{self, File},
