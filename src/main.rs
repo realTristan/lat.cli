@@ -42,7 +42,7 @@ async fn main() {
     // Get the query (install, i, etc.)
     if args.len() < 2 {
         println!(
-            "\nWelcome to lat.cli\n\n  Import Package:\n    $ lat -install (github_user)/(repo_name.sty)\n    $ lat -install realTristan/realtristan.sty\n\n  Create Shortcut:\n    $ lat -short -new (shortcut_name) (shortcut_path)\n    $ lat -short -new rt realTristan/realtristan.sty\n\n  List Shortcuts:\n    $ lat -short -ls\n\n  Clear Shortcuts:\n    $ lat -short -empty\n\n  Update CLI:\n    $ lat -update\n"
+            "\nWelcome to lat.cli\n\n  Import Package:\n    $ lat -install (github_user)/(repo_name.sty)\n    $ lat -install realTristan/realtristan.sty\n    $ lat -install (shortcut_name)\n\n  Create Shortcut:\n    $ lat -short -new (shortcut_name) (shortcut_path)\n    $ lat -short -new rt realTristan/realtristan.sty\n\n  List Shortcuts:\n    $ lat -short -ls\n\n  Delete Shortcuts:\n    $ lat -short -remove (shortcut_name)\n    $ lat -short -empty\n\n  Update CLI:\n    $ lat -update\n"
         );
         return;
     }
