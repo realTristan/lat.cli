@@ -22,6 +22,16 @@ $ cd your_latex_directory
 $ lat -i realTristan/realtristan.sty
 ```
 
+# Example Shortcuts
+```
+$ lat -short -new rt realTristan/realtristan.sty
+$ lat -i rt
+
+$ lat -short -list
+$ lat -short -remove rt
+$ lat -short -empty
+```
+
 # Making your own import
 The repository name must be the same name as the .sty file name.
 
