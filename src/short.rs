@@ -6,27 +6,27 @@ use std::{
 };
 
 // The read_json() function is used to read
-// the current data from the data.json file.
+// the current data from the lat.data.json file.
 // The function returns the serde_json::Value
 // provided to us by the serde_json::from_str()
 // function.
 fn read_json(bin_path: &str) -> Value {
-    let data: String = match fs::read_to_string(format!("{bin_path}/data.json")) {
+    let data: String = match fs::read_to_string(format!("{bin_path}/lat.data.json")) {
         Ok(d) => d,
-        Err(_) => match File::create(format!("{bin_path}/data.json")) {
+        Err(_) => match File::create(format!("{bin_path}/lat.data.json")) {
             Ok(_) => "{}".to_string(),
-            Err(e) => panic!("failed to parse data.json {:?}", e),
+            Err(e) => panic!("failed to parse lat.data.json {:?}", e),
         },
     };
     let json: Value = match serde_json::from_str(&data) {
         Ok(j) => j,
-        Err(e) => panic!("failed to parse data.json. {:?}", e),
+        Err(e) => panic!("failed to parse lat.data.json. {:?}", e),
     };
     return json;
 }
 
 // The add_short_to_json() function adds a new short into
-// the data.json file. To do this, we read the current json
+// the lat.data.json file. To do this, we read the current json
 // data then set the short key with the long value inside
 // the returned map. Then, we write the data to the file.
 fn add_short_to_json(bin_path: &str, short: &str, long: &str) {
@@ -39,10 +39,10 @@ fn add_short_to_json(bin_path: &str, short: &str, long: &str) {
     };
     json[short] = long;
 
-    // Get the data.json file
-    let file: File = match File::create(format!("{bin_path}/data.json")) {
+    // Get the lat.data.json file
+    let file: File = match File::create(format!("{bin_path}/lat.data.json")) {
         Ok(f) => f,
-        Err(e) => panic!("failed to read data.json. {:?}", e),
+        Err(e) => panic!("failed to read lat.data.json. {:?}", e),
     };
 
     // Create a new writer for writing to the json file.
@@ -50,21 +50,21 @@ fn add_short_to_json(bin_path: &str, short: &str, long: &str) {
     match serde_json::to_writer(&mut writer, &json) {
         Ok(_) => match writer.flush() {
             Ok(_) => println!("successfully created new short: '{}'", short),
-            Err(e) => panic!("failed to flush data.json. {:?}", e),
+            Err(e) => panic!("failed to flush lat.data.json. {:?}", e),
         },
-        Err(e) => panic!("failed to save new short to data.json. {:?}", e),
+        Err(e) => panic!("failed to save new short to lat.data.json. {:?}", e),
     };
 }
 
 // The list_shorts() function is used to list
-// all of the current shorts inside the data.json
+// all of the current shorts inside the lat.data.json
 // file. This function is required for determining
 // which shorts you need to delete.
 fn list_shorts(bin_path: &str) {
     let json: Value = read_json(bin_path);
     let json: &Map<String, Value> = match json.as_object() {
         Some(j) => j,
-        None => panic!("failed to read data.json as object."),
+        None => panic!("failed to read lat.data.json as object."),
     };
     for (key, value) in json {
         println!("{}: {}", key, serde_json::to_string(value).unwrap())
@@ -72,26 +72,26 @@ fn list_shorts(bin_path: &str) {
 }
 
 // The empty_short_json() function is used to delete
-// all of the shorts that are inside of the data.json
+// all of the shorts that are inside of the lat.data.json
 // file. This command would be used to prevent too
 // many shorts from being made.
 fn empty_short_json(bin_path: &str) {
-    let file: File = match File::create(format!("{bin_path}/data.json")) {
+    let file: File = match File::create(format!("{bin_path}/lat.data.json")) {
         Ok(f) => f,
-        Err(e) => panic!("failed to read data.json. {:?}", e),
+        Err(e) => panic!("failed to read lat.data.json. {:?}", e),
     };
     let mut writer: BufWriter<File> = BufWriter::new(file);
     match serde_json::to_writer(&mut writer, &Map::new()) {
         Ok(_) => match writer.flush() {
             Ok(_) => println!("successfully removed all shorts"),
-            Err(e) => panic!("failed to flush data.json. {:?}", e),
+            Err(e) => panic!("failed to flush lat.data.json. {:?}", e),
         },
-        Err(e) => panic!("failed to save new short to data.json. {:?}", e),
+        Err(e) => panic!("failed to save new short to lat.data.json. {:?}", e),
     };
 }
 
 // The remove_short_from_json() function is used
-// to remove a shortcut from the data.json file.
+// to remove a shortcut from the lat.data.json file.
 fn remove_short_from_json(bin_path: &str, short: &str) {}
 
 // The get_long_from_json() function is used to
