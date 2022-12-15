@@ -23,6 +23,17 @@ pub async fn init(path: &str) {
     import_no_url(&dir, path).await;
 }
 
+// Get the current working directory. This is where
+// the folder containing the imports will be located.
+// %CURRENT_DIR%/file.sty..
+fn get_current_dir() -> Option<String> {
+    let res = env::current_dir();
+    return match res {
+        Ok(path) => Some(path.into_os_string().into_string().unwrap()),
+        Err(_) => None,
+    };
+}
+
 // The import_with_url() function is used to
 // import the provided file using the github
 // url the user provided.
@@ -98,6 +109,8 @@ async fn create_import_with_repo(dir: &str, path: &str) {
             _path = path[..index.unwrap()].to_string();
         }
     }
+
+    // Get the new .sty file path from the repo url
     let _path_: Option<String> = get_import_url_from_repo(&_path).await;
     if _path_ != None {
         let _path_: String = _path_.unwrap();
@@ -173,17 +186,6 @@ async fn get_import_contents(path: &str) -> String {
     return match text {
         Ok(text) => text,
         Err(e) => panic!("failed to extract http response text. {:?}", e),
-    };
-}
-
-// Get the current working directory. This is where
-// the folder containing the imports will be located.
-// %CURRENT_DIR%/file.sty..
-fn get_current_dir() -> Option<String> {
-    let res = env::current_dir();
-    return match res {
-        Ok(path) => Some(path.into_os_string().into_string().unwrap()),
-        Err(_) => None,
     };
 }
 
