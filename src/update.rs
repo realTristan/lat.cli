@@ -2,7 +2,7 @@ use std::fs::{self, File};
 use std::io;
 
 // Initialize the update command
-pub async fn init() {
+pub async fn init(bin_path: &str) {
     // Send the http request to the github url
     let resp = reqwest::get("https://raw.githubusercontent.com/realTristan/lat.cli/main/lat").await;
     let resp: reqwest::Response = match resp {
@@ -18,7 +18,7 @@ pub async fn init() {
     };
 
     // Create the new executable file
-    let file = File::create("lat.tmp");
+    let file = File::create(format!("{bin_path}/lat.tmp"));
     let mut file: File = match file {
         Ok(f) => f,
         Err(e) => panic!("failed to create new version executable. {:?}", e),
@@ -28,7 +28,7 @@ pub async fn init() {
     let res = io::copy(&mut body.as_bytes(), &mut file);
     let res: u64 = match res {
         Ok(r) => r,
-        Err(copy_error) => match fs::remove_file("lat.tmp") {
+        Err(copy_error) => match fs::remove_file(format!("{bin_path}/lat.tmp")) {
             Ok(_) => panic!(
                 "failed to copy response data to new executable. {:?}",
                 copy_error
@@ -51,14 +51,14 @@ pub async fn init() {
         }
 
         // After removing the old lat executable...
-        match fs::remove_file(file_name) {
-            Ok(_) => match fs::rename("lat.tmp", file_name) {
+        match fs::remove_file(format!("{bin_path}/{file_name}")) {
+            Ok(_) => match fs::rename(format!("{bin_path}/lat.tmp"), format!("{bin_path}/{file_name}")) {
                 Ok(_) => println!("successfully updated lat.cli"),
                 Err(_) => {
                     panic!("failed to convert lat.tmp to {}. use \"lat -u\" to try again.", file_name)
                 }
             },
-            Err(_) => match fs::remove_file("lat.tmp") {
+            Err(_) => match fs::remove_file(format!("{bin_path}/lat.tmp")) {
                 Ok(_) => panic!("failed to remove existing {} file.", file_name),
                 Err(_) => panic!("failed to remove existing {} file and lat.tmp file. please visit your $PATH to update manually.", file_name),
             },

@@ -72,6 +72,6 @@ async fn main() {
     }
     // Update Command
     else if query == "-u" || query == "-update" {
-        update::init().await;
+        update::init(bin_path).await;
     }
 }
