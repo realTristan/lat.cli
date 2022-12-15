@@ -27,7 +27,8 @@ pub async fn init(path: &str) {
 // import the provided file using the github
 // url the user provided.
 async fn import_with_url(dir: &str, path: &str) {
-    // Split the path to get the import name
+    // Split the path to determine what type of
+    // github url it is.
     let split_path: Vec<&str> = path.split("/").collect();
 
     // If the provided url is just the repo url...
@@ -46,7 +47,7 @@ async fn import_with_url(dir: &str, path: &str) {
     }
 
     // Get the import name and contents
-    let import: String = extract_import_name(split_path);
+    let import: String = extract_import_name(&_path);
     let contents: String = get_import_contents(&_path).await;
 
     // Create new import file
@@ -101,11 +102,8 @@ async fn create_import_with_repo(dir: &str, path: &str) {
     if _path_ != None {
         let _path_: String = _path_.unwrap();
 
-        // Split the path to get the import name
-        let split_path: Vec<&str> = _path_.split("/").collect();
-
         // Get the import and contents
-        let import: String = extract_import_name(split_path);
+        let import: String = extract_import_name(&_path_);
         let contents: String = get_import_contents(&_path_).await;
 
         // Create new import file
@@ -147,7 +145,10 @@ async fn get_import_url_from_repo(path: &str) -> Option<String> {
 
 // The extract_import_name() function is used
 // to extract the import name of the provided path.
-fn extract_import_name(split_path: Vec<&str>) -> String {
+fn extract_import_name(path: &str) -> String {
+    // Split the path to get the import name
+    let split_path: Vec<&str> = path.split("/").collect();
+
     // Get the import name using the split path array
     let import: String;
     if split_path[split_path.len() - 1].len() > 0 {

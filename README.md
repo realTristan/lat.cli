@@ -20,7 +20,17 @@ Windows:
 # Example Import
 ```
 $ cd your_latex_directory
-$ lat -i realTristan/realtristan.sty
+
+Import Using the Repository:
+  $ lat -i https://github.com/realTristan/realtristan.sty
+
+
+Quick Import (github_user)/(repo and file name):
+  $ lat -i realTristan/realtristan.sty
+
+
+Import Using the File Url:
+  $ lat -i https://github.com/realTristan/realtristan.sty/blob/main/realtristan.sty
 ```
 
 # Example Shortcuts
