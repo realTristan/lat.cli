@@ -14,7 +14,7 @@ pub async fn init(path: &str) {
     };
 
     // If the path contains http (a url)
-    if path.contains("http") {
+    if path.starts_with("https://") {
         if !path.contains("github") {
             panic!("invalid github url.")
         }
