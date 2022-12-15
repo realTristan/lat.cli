@@ -10,10 +10,10 @@ use std::{
 // The function returns the serde_json::Value
 // provided to us by the serde_json::from_str()
 // function.
-fn read_json() -> Value {
-    let data: String = match fs::read_to_string("./data.json") {
+fn read_json(bin_path: &str) -> Value {
+    let data: String = match fs::read_to_string(format!("{bin_path}/data.json")) {
         Ok(d) => d,
-        Err(_) => match File::create("./data.json") {
+        Err(_) => match File::create(format!("{bin_path}/data.json")) {
             Ok(_) => "{}".to_string(),
             Err(e) => panic!("failed to parse data.json {:?}", e),
         },
@@ -29,18 +29,23 @@ fn read_json() -> Value {
 // the data.json file. To do this, we read the current json
 // data then set the short key with the long value inside
 // the returned map. Then, we write the data to the file.
-fn add_short_to_json(short: &str, long: &str) {
-    let mut json: Value = read_json();
+fn add_short_to_json(bin_path: &str, short: &str, long: &str) {
+    let mut json: Value = read_json(bin_path);
+
+    // Convert the provided long string to a serde_json value
     let long: Value = match serde_json::to_value(long) {
         Ok(l) => l,
         Err(e) => panic!("failed to convert long to value. {:?}", e),
     };
     json[short] = long;
 
-    let file: File = match File::create("./data.json") {
+    // Get the data.json file
+    let file: File = match File::create(format!("{bin_path}/data.json")) {
         Ok(f) => f,
         Err(e) => panic!("failed to read data.json. {:?}", e),
     };
+
+    // Create a new writer for writing to the json file.
     let mut writer = BufWriter::new(file);
     match serde_json::to_writer(&mut writer, &json) {
         Ok(_) => match writer.flush() {
@@ -55,9 +60,9 @@ fn add_short_to_json(short: &str, long: &str) {
 // all of the current shorts inside the data.json
 // file. This function is required for determining
 // which shorts you need to delete.
-fn list_shorts() {
-    let json: Value = read_json();
-    let json = match json.as_object() {
+fn list_shorts(bin_path: &str) {
+    let json: Value = read_json(bin_path);
+    let json: &Map<String, Value> = match json.as_object() {
         Some(j) => j,
         None => panic!("failed to read data.json as object."),
     };
@@ -70,8 +75,8 @@ fn list_shorts() {
 // all of the shorts that are inside of the data.json
 // file. This command would be used to prevent too
 // many shorts from being made.
-fn empty_short_json() {
-    let file: File = match File::create("./data.json") {
+fn empty_short_json(bin_path: &str) {
+    let file: File = match File::create(format!("{bin_path}/data.json")) {
         Ok(f) => f,
         Err(e) => panic!("failed to read data.json. {:?}", e),
     };
@@ -87,13 +92,13 @@ fn empty_short_json() {
 
 // The remove_short_from_json() function is used
 // to remove a shortcut from the data.json file.
-fn remove_short_from_json(short: &str) {}
+fn remove_short_from_json(bin_path: &str, short: &str) {}
 
 // The get_long_from_json() function is used to
 // get the long version of the provided short which
 // will be used by the install functions.
-pub fn get_long_from_json(short: &str) -> String {
-    let json: Value = read_json();
+pub fn get_long_from_json(bin_path: &str, short: &str) -> String {
+    let json: Value = read_json(bin_path);
     if let Some(short) = json[short].as_str() {
         return short.to_string();
     }
@@ -105,7 +110,7 @@ pub fn get_long_from_json(short: &str) -> String {
 // create a new short, delete a short, list all
 // shorts, or remove all shorts, this is where
 // the specific functions are called.
-pub async fn init(args: Vec<String>) {
+pub async fn init(bin_path: &str, args: Vec<String>) {
     let action: &str = &args[2];
 
     // Add a short
@@ -116,15 +121,15 @@ pub async fn init(args: Vec<String>) {
         }
         let short: &str = &args[3];
         let long: &str = &args[4];
-        add_short_to_json(short, long);
+        add_short_to_json(bin_path, short, long);
     }
     // List all shorts
     else if action == "-ls" || action == "-list" {
-        list_shorts();
+        list_shorts(bin_path);
     }
     // Delete all shorts
     else if action == "-empty" {
-        empty_short_json();
+        empty_short_json(bin_path);
     }
     // Delete a short
     else if action == "-rm" || action == "-remove" {
@@ -133,7 +138,7 @@ pub async fn init(args: Vec<String>) {
             return;
         }
         let short: &str = &args[3];
-        remove_short_from_json(short);
+        remove_short_from_json(bin_path, short);
     }
 }
 

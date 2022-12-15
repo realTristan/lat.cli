@@ -24,7 +24,19 @@ mod update;
 // Main function
 #[tokio::main]
 async fn main() {
-    // Get the provided arguments and query
+    // Get the bin folder path buf
+    let path_buf = match env::current_exe() {
+        Ok(buf) => buf,
+        Err(e) => panic!("failed to fetch lat $PATH. {:?}", e),
+    };
+
+    // Get the bin folder ($PATH)
+    let bin_path: &str = match path_buf.parent() {
+        Some(path) => path.to_str().unwrap().clone(),
+        None => panic!("failed to unwrap lat $PATH."),
+    };
+
+    // Get the provided arguments
     let args: Vec<String> = env::args().collect();
 
     // Get the query (install, i, etc.)
@@ -50,13 +62,13 @@ async fn main() {
         }
         // Else, the provided is a short..
         else {
-            let path: String = short::get_long_from_json(path);
+            let path: String = short::get_long_from_json(bin_path, path);
             install::init(&path).await;
         }
     }
     // Update Command
     else if query == "-s" || query == "-short" {
-        short::init(args).await;
+        short::init(bin_path, args).await;
     }
     // Update Command
     else if query == "-u" || query == "-update" {
