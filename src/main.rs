@@ -1,5 +1,6 @@
 use std::env;
 mod install;
+mod short;
 mod update;
 
 //
@@ -29,7 +30,7 @@ async fn main() {
     // Get the query (install, i, etc.)
     if args.len() < 2 {
         println!(
-            "\nWelcome to lat.cli\n\n  Import Package:\n    $ lat -install (github_user)/(repo_name.sty)\n    $ lat -install realTristan/realtristan.sty\n\n  Update CLI:\n    $ lat -update\n"
+            "\nWelcome to lat.cli\n\n  Import Package:\n    $ lat -install (github_user)/(repo_name.sty)\n    $ lat -install realTristan/realtristan.sty\n\n  Create Shortcut:\n    $ lat -short -new (shortcut_name) (shortcut_path)\n    $ lat -short -new rt realTristan/realtristan.sty\n\n  List Shortcuts:\n    $ lat -short -ls\n\n  Clear Shortcuts:\n    $ lat -short -empty\n\n  Update CLI:\n    $ lat -update\n"
         );
         return;
     }
@@ -41,7 +42,21 @@ async fn main() {
             println!("not enough arguments provided. ex: lat -install realTristan/realtristan.sty");
             return;
         }
-        install::init(&args).await;
+        let path: &str = &args[2];
+
+        // Else if the path contains just one /
+        if path.contains("/") {
+            install::init(path).await;
+        }
+        // Else, the provided is a short..
+        else {
+            let path: String = short::get_long_from_json(path);
+            install::init(&path).await;
+        }
+    }
+    // Update Command
+    else if query == "-s" || query == "-short" {
+        short::init(args).await;
     }
     // Update Command
     else if query == "-u" || query == "-update" {

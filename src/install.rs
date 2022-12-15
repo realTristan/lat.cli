@@ -4,10 +4,7 @@ use std::fs::File;
 use std::io::Write;
 
 // Initialize the update command
-pub async fn init(args: &Vec<String>) {
-    // Get the import path
-    let path: &str = &args[2];
-
+pub async fn init(path: &str) {
     // Get user and import name
     let (user, import) = get_user_and_import(path);
 
