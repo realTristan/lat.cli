@@ -122,12 +122,12 @@ fn remove_short_from_json(bin_path: &str, short: &str) {
 // The get_long_from_json() function is used to
 // get the long version of the provided short which
 // will be used by the install functions.
-pub fn get_long_from_json(bin_path: &str, short: &str) -> String {
+pub fn get_long_from_json(bin_path: &str, short: &str) -> Option<String> {
     let json: Value = read_json(bin_path);
     if let Some(short) = json[short].as_str() {
-        return short.to_string();
+        return Some(short.to_string());
     }
-    return "".to_string();
+    return None;
 }
 
 // The init() function is used to initialize

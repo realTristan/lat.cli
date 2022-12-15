@@ -62,8 +62,10 @@ async fn main() {
         }
         // Else, the provided is a short..
         else {
-            let path: String = short::get_long_from_json(bin_path, path);
-            install::init(&path).await;
+            let path: Option<String> = short::get_long_from_json(bin_path, path);
+            if path != None {
+                install::init(&path.unwrap()).await;
+            }
         }
     }
     // Update Command
