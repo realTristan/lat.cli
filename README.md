@@ -2,7 +2,8 @@
 ![LaTeX_logo](https://user-images.githubusercontent.com/75189508/207660487-afff32e3-9ac2-474e-b3b2-36572537e272.png)
 
 # About
-- lat.cli is an easy-to-use and fast terminal CLI for importing .sty files from github into your project.
+- lat.cli is a fast and easy-to-use CLI Tool for importing .sty files from github into your project.
+- lat.cli makes importing simple. No Urls. Easy Imports. Customizable Shortcuts.
 - lat.cli was built with Rust to ensure minimal memory usage and maximum speed.
 
 # Install
@@ -13,7 +14,7 @@ MacOS:
 Windows:
   $ mkdir C:\lat.cli
   $ curl "https://github.com/realTristan/lat.cli/blob/main/lat.exe?raw=true" -o C:\lat.cli\lat.exe
-  $ Add to Environment Variables
+  $ Add "C:\lat.cli" to Environment Variables
 ```
 
 # Example Import
