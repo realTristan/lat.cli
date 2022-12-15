@@ -46,7 +46,7 @@ fn add_short_to_json(bin_path: &str, short: &str, long: &str) {
     };
 
     // Create a new writer for writing to the json file.
-    let mut writer = BufWriter::new(file);
+    let mut writer: BufWriter<File> = BufWriter::new(file);
     match serde_json::to_writer(&mut writer, &json) {
         Ok(_) => match writer.flush() {
             Ok(_) => println!("successfully created new short: '{}'", short),
@@ -92,7 +92,33 @@ fn empty_short_json(bin_path: &str) {
 
 // The remove_short_from_json() function is used
 // to remove a shortcut from the lat.data.json file.
-fn remove_short_from_json(bin_path: &str, short: &str) {}
+fn remove_short_from_json(bin_path: &str, short: &str) {
+    let json: Value = read_json(bin_path);
+    let json: &mut Map<String, Value> = &mut match json.as_object() {
+        Some(obj) => obj.to_owned(),
+        None => panic!("failed to read lat.data.json as object."),
+    };
+    match json.remove(short) {
+        Some(_) => println!("'{short}' removed from cache map... awaiting file update..."),
+        None => panic!("failed to remove short from lat.data.json"),
+    };
+
+    // Get the lat.data.json file
+    let file: File = match File::create(format!("{bin_path}/lat.data.json")) {
+        Ok(f) => f,
+        Err(e) => panic!("failed to read lat.data.json. {:?}", e),
+    };
+
+    // Create a new writer for writing to the json file.
+    let mut writer: BufWriter<File> = BufWriter::new(file);
+    match serde_json::to_writer(&mut writer, &json) {
+        Ok(_) => match writer.flush() {
+            Ok(_) => println!("successfully removed short: '{}'", short),
+            Err(e) => panic!("failed to flush lat.data.json. {:?}", e),
+        },
+        Err(e) => panic!("failed to remove short to lat.data.json. {:?}", e),
+    };
+}
 
 // The get_long_from_json() function is used to
 // get the long version of the provided short which
