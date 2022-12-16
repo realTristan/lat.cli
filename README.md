@@ -44,4 +44,6 @@ $ lat -short -empty
 ```
 
 # Making your own import
-- To make your own import, create a repository and put your .sty file inside. Do not put the s.ty file in any folders.
+- To make your own import, create a repository and put your .sty file inside. 
+- Do not put the .sty file in any folders. 
+- Do not have more than ONE .sty file inside the repo.
