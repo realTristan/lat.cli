@@ -6,6 +6,8 @@ use std::io::Write;
 
 // Initialize the update command
 pub async fn init(path: &str) {
+    let mut path: String = path.to_string();
+
     // Get current working directory
     let dir: Option<String> = get_current_dir();
     let dir: String = match dir {
@@ -13,14 +15,30 @@ pub async fn init(path: &str) {
         None => panic!("failed to get current working directory."),
     };
 
-    // If the path contains http (a url)
-    if path.starts_with("https://") {
-        if !path.contains("github") {
-            panic!("invalid github url.")
-        }
-        return import_with_url(&dir, path).await;
+    // Remove any trailing slashes
+    while path.ends_with("/") {
+        path = path[..path.len() - 1].to_string();
     }
-    import_no_url(&dir, path).await;
+
+    // If the path contains http (a url)
+    if path.contains("github.com/") {
+        if !path.starts_with("https://") {
+            path = format!("https://{}", path);
+            return import_with_url(&dir, &path).await;
+        }
+        return import_with_url(&dir, &path).await;
+    }
+
+    // Split the provided path to get the user and repo
+    let split_path: Vec<&str> = path.split("/").collect();
+    let user: &str = split_path[0];
+    let repo: &str = split_path[1];
+
+    // Create the repo url
+    path = format!("https://github.com/{}/{}", user, repo);
+
+    // Create the import file using the repo url
+    create_import_with_repo(&dir, &path).await;
 }
 
 // Get the current working directory. This is where
@@ -65,29 +83,6 @@ async fn import_with_url(dir: &str, path: &str) {
     create_import_file(dir, &import, &contents).await;
 }
 
-// The import_no_url() function is used to create
-// a new import file if the path is formatted as
-// github_user/github_repo
-async fn import_no_url(dir: &str, path: &str) {
-    // split_path the provided path to get the github user
-    // and the import repository.
-    let split_path: Vec<&str> = path.split("/").collect();
-    let user: &str = split_path[0];
-    let import: &str = split_path[1];
-
-    // Create a new raw github path using the user and import
-    let path: &str = &format!(
-        "https://raw.githubusercontent.com/{}/{}/main/{}",
-        user, import, import
-    );
-
-    // Get import file contents
-    let contents: String = get_import_contents(path).await;
-
-    // Create new import file
-    create_import_file(dir, import, &contents).await;
-}
-
 // The create_import_with_repo() function is used to
 // create a new .sty file using the provided github
 // repo url. This works by getting the provided repos
@@ -99,29 +94,28 @@ async fn import_no_url(dir: &str, path: &str) {
 // of that file. The file contents is then copied to a
 // local file with that file name.
 async fn create_import_with_repo(dir: &str, path: &str) {
-    let mut _path: String = path.to_string();
+    let mut path: String = path.to_string();
 
     // If the provided url has .git on the end of it
-    if _path.ends_with(".git") || _path.ends_with(".git/") {
-        let index: Option<usize> = path.find(".git");
-        if index != None {
-            // Remove the .git from the url
-            _path = path[..index.unwrap()].to_string();
-        }
+    if path.ends_with(".git") {
+        path = path[..path.len() - 4].to_string();
     }
 
     // Convert the url to the github api url.
-    let split_path: Vec<&str> = _path.split("/").collect();
-    _path = format!("https://api.github.com/repos/{}/{}/contents/", split_path[3], split_path[4]);
+    let split_path: Vec<&str> = path.split("/").collect();
+    path = format!(
+        "https://api.github.com/repos/{}/{}/contents/",
+        split_path[3], split_path[4]
+    );
 
     // Get the new .sty file path from the repo url
-    let _path_: Option<String> = get_import_url_from_repo(&_path).await;
-    if _path_ != None {
-        let _path_: String = _path_.unwrap();
+    let _path: Option<String> = get_import_url_from_repo(&path).await;
+    if _path != None {
+        let _path: String = _path.unwrap();
 
         // Get the import and contents
-        let import: String = extract_import_name(&_path_);
-        let contents: String = get_import_contents(&_path_).await;
+        let import: String = extract_import_name(&_path);
+        let contents: String = get_import_contents(&_path).await;
 
         // Create new import file
         create_import_file(dir, &import, &contents).await;
@@ -153,7 +147,7 @@ async fn get_import_url_from_repo(path: &str) -> Option<String> {
     // Convert the json response to an array
     let json: &Vec<Value> = match json.as_array() {
         Some(j) => j,
-        None => panic!("failed to parse lat.data.json.")
+        None => panic!("failed to parse lat.data.json."),
     };
 
     // Iterate over the array to find the .sty file
@@ -179,13 +173,7 @@ fn extract_import_name(path: &str) -> String {
     let split_path: Vec<&str> = path.split("/").collect();
 
     // Get the import name using the split path array
-    let import: String;
-    if split_path[split_path.len() - 1].len() > 0 {
-        import = split_path[split_path.len() - 1].to_string();
-    } else {
-        import = split_path[split_path.len() - 2].to_string();
-    }
-    return import;
+    return split_path[split_path.len() - 1].to_string();
 }
 
 // The get_import_contents() function is used to get

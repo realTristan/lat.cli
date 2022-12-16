@@ -41,9 +41,7 @@ async fn main() {
 
     // Get the query (install, i, etc.)
     if args.len() < 2 {
-        println!(
-            "\nWelcome to lat.cli\n\n  Import Package:\n    $ lat -install (github_user)/(repo_name.sty)\n    $ lat -install realTristan/realtristan.sty\n    $ lat -install (shortcut_name)\n\n  Create Shortcut:\n    $ lat -short -new (shortcut_name) (shortcut_path)\n    $ lat -short -new rt realTristan/realtristan.sty\n\n  List Shortcuts:\n    $ lat -short -ls\n\n  Delete Shortcuts:\n    $ lat -short -remove (shortcut_name)\n    $ lat -short -empty\n\n  Update CLI:\n    $ lat -update\n"
-        );
+        println!("{}", help_command());
         return;
     }
 
@@ -78,4 +76,32 @@ async fn main() {
     else if query == "-u" || query == "-update" {
         update::init(bin_path).await;
     }
+}
+
+// Help command string
+fn help_command() -> String {
+    return String::from(
+        "
+Welcome to lat.cli
+
+    Import Package:
+        $ lat -install (github repo url)
+        $ lat -install https://github.com/realTristan/realtristan.sty
+        $ lat -install (shortcut name)
+    
+    Create Shortcuts:
+        $ lat -short -new (shortcut name) (shortcut path)
+        $ lat -short -new rt realTristan/realtristan.sty
+        
+    List Shortcuts:
+        $ lat -short -ls
+    
+    Delete Shortcuts:
+        $ lat -short -remove (shortcut name)
+        $ lat -short -empty
+    
+    Update CLI:
+        $ lat -update
+    ",
+    );
 }
