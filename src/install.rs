@@ -61,7 +61,7 @@ async fn import_with_url(dir: &str, path: &str) {
     let split_path: Vec<&str> = path.split("/").collect();
 
     // If the provided url is just the repo url...
-    if split_path.len() <= 6 {
+    if split_path.len() <= 5 {
         // Create the .sty file from the repo content
         return create_import_with_repo(dir, path).await;
     }
