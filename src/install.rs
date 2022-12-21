@@ -4,16 +4,45 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 
+// Define the request client as a global variable
+lazy_static::lazy_static! {
+    static ref CLIENT: reqwest::Client = reqwest::Client::new();
+}
+
+// Send an http request to the provided url
+async fn http_get(url: &str) -> reqwest::Response {
+    return match CLIENT.get(url)
+        .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36")
+        .send().await 
+    {
+        Ok(r) => r,
+        Err(e) => panic!("failed to request provided url. {:?}", e),
+    };
+}
+
+// Get the current working directory. This is where
+// the folder containing the imports will be located.
+// %CURRENT_DIR%/file.sty..
+fn get_current_dir() -> Option<String> {
+    return match env::current_dir() {
+        Ok(path) => match path.into_os_string().into_string() {
+            Ok(p) => Some(p),
+            Err(_) => None
+        }
+        Err(_) => None
+    };
+}
+
 // Initialize the update command
 pub async fn init(path: &str) {
-    let mut path: String = path.to_string();
-
     // Get current working directory
-    let dir: Option<String> = get_current_dir();
-    let dir: String = match dir {
+    let dir: String = match get_current_dir() {
         Some(d) => d,
         None => panic!("failed to get current working directory."),
     };
+
+    // Convert the path to a mutable variable
+    let mut path: String = path.to_string();
 
     // Remove any trailing slashes
     while path.ends_with("/") {
@@ -41,17 +70,6 @@ pub async fn init(path: &str) {
     create_import_with_repo(&dir, &path).await;
 }
 
-// Get the current working directory. This is where
-// the folder containing the imports will be located.
-// %CURRENT_DIR%/file.sty..
-fn get_current_dir() -> Option<String> {
-    let res = env::current_dir();
-    return match res {
-        Ok(path) => Some(path.into_os_string().into_string().unwrap()),
-        Err(_) => None,
-    };
-}
-
 // The import_with_url() function is used to
 // import the provided file using the github
 // url the user provided.
@@ -67,17 +85,17 @@ async fn import_with_url(dir: &str, path: &str) {
     }
 
     // Create a mutable path variable
-    let mut _path: String = path.to_string();
+    let mut path: String = path.to_string();
 
     // Replace the /blob/ with /raw/ to get the
     // raw contents of the file.
     if path.contains("/blob/") {
-        _path = path.replace("/blob/", "/raw/");
+        path = path.replace("/blob/", "/raw/");
     }
 
     // Get the import name and contents
-    let import: String = extract_import_name(&_path);
-    let contents: String = get_import_contents(&_path).await;
+    let import: String = extract_import_name(&path);
+    let contents: String = get_import_contents(&path).await;
 
     // Create new import file
     create_import_file(dir, &import, &contents).await;
@@ -109,58 +127,60 @@ async fn create_import_with_repo(dir: &str, path: &str) {
     );
 
     // Get the new .sty file path from the repo url
-    let _path: Option<String> = get_import_url_from_repo(&path).await;
-    if _path != None {
-        let _path: String = _path.unwrap();
+    match get_import_url_from_repo(&path).await {
+        Some(path) => {
+            // Get the import and contents
+            let import: String = extract_import_name(&path);
+            let contents: String = get_import_contents(&path).await;
 
-        // Get the import and contents
-        let import: String = extract_import_name(&_path);
-        let contents: String = get_import_contents(&_path).await;
-
-        // Create new import file
-        create_import_file(dir, &import, &contents).await;
+            // Create new import file
+            create_import_file(dir, &import, &contents).await;
+        }
+        None => panic!("failed to get import url from repo."),
     }
 }
 
 // The get_import_url_from_repo() function is used to get the
 // .sty file download url from the provided github repo.
 async fn get_import_url_from_repo(path: &str) -> Option<String> {
-    let client: reqwest::Client = reqwest::Client::new();
-    let resp = client.get(path)
-        .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36")
-        .send().await;
-    let resp: reqwest::Response = match resp {
-        Ok(r) => r,
-        Err(e) => panic!("failed to request provided url. {:?}", e),
-    };
-
-    // Get the response body
-    let body: String = match resp.text().await {
-        Ok(body) => body,
+    // Get the http request response
+    let resp: reqwest::Response = http_get(path).await;
+    
+    // Get the response json as a serde_json::Value
+    let json: Value = match resp.text().await {
+        Ok(body) => match serde_json::from_str(&body) {
+            Ok(j) => j,
+            Err(e) => panic!("failed to parse response json. {:?}", e),
+        },
         Err(e) => panic!("failed to extract http response body. {:?}", e),
-    };
-    let json: Value = match serde_json::from_str(&body) {
-        Ok(j) => j,
-        Err(e) => panic!("failed to parse lat.data.json. {:?}", e),
     };
 
     // Convert the json response to an array
     let json: &Vec<Value> = match json.as_array() {
         Some(j) => j,
-        None => panic!("failed to parse lat.data.json."),
+        None => panic!("failed to parse http response json."),
     };
 
     // Iterate over the array to find the .sty file
     for map in json {
-        let name: Option<&Value> = map.get("name");
-        if name != None {
-            let name: String = name.unwrap().to_string();
-            if name.ends_with(".sty\"") {
-                let download_url: Option<&Value> = map.get("download_url");
-                if download_url != None {
-                    return Some(download_url.unwrap().to_string().replace("\"", ""));
+        match map.get("name") {
+            Some(name) => {
+                // Convert the name to a string
+                let name: String = name.to_string();
+
+                // If the name ends with .sty then
+                if name.ends_with(".sty\"") {
+
+                    // Get the download url for the .sty file
+                    match map.get("download_url") {
+                        Some(download_url) => {
+                            return Some(download_url.to_string().replace("\"", ""));
+                        }
+                        None => panic!("failed to get .sty file download url."),
+                    }
                 }
             }
+            None => panic!("failed to get name."),
         }
     }
     return None;
@@ -180,15 +200,10 @@ fn extract_import_name(path: &str) -> String {
 // the raw file content from the github repo using the
 // provided path.
 async fn get_import_contents(path: &str) -> String {
-    // Send the http request to the github url
-    let client: reqwest::Client = reqwest::Client::new();
-    let resp = client.get(path)
-        .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36")
-        .send().await;
-    let resp: reqwest::Response = match resp {
-        Ok(r) => r,
-        Err(e) => panic!("failed to request provided url. {:?}", e),
-    };
+    // Send the http request and get the response
+    let resp: reqwest::Response = http_get(path).await;
+
+    // Get the response body
     return match resp.text().await {
         Ok(body) => body,
         Err(e) => panic!("failed to extract http response body. {:?}", e),
