@@ -17,6 +17,8 @@ fn read_json(bin_path: &str) -> Value {
             Err(e) => panic!("failed to parse lat.data.json {:?}", e),
         },
     };
+
+    // Convert the data to a serde_json value
     let json: Value = match serde_json::from_str(&data) {
         Ok(j) => j,
         Err(e) => panic!("failed to parse lat.data.json. {:?}", e),
@@ -36,6 +38,8 @@ fn add_short_to_json(bin_path: &str, short: &str, long: &str) {
         Ok(l) => l,
         Err(e) => panic!("failed to convert long to value. {:?}", e),
     };
+
+    // Update the json data
     json[short] = long;
 
     // Get the lat.data.json file
@@ -60,11 +64,14 @@ fn add_short_to_json(bin_path: &str, short: &str, long: &str) {
 // file. This function is required for determining
 // which shorts you need to delete.
 fn list_shorts(bin_path: &str) {
+    // Get the current json data
     let json: Value = read_json(bin_path);
     let json: &Map<String, Value> = match json.as_object() {
         Some(j) => j,
         None => panic!("failed to read lat.data.json as object."),
     };
+
+    // Print out all of the shorts
     for (key, value) in json {
         println!("{}: {}", key, serde_json::to_string(value).unwrap())
     }
@@ -75,10 +82,13 @@ fn list_shorts(bin_path: &str) {
 // file. This command would be used to prevent too
 // many shorts from being made.
 fn empty_short_json(bin_path: &str) {
+    // Get the lat.data.json file
     let file: File = match File::create(format!("{bin_path}/lat.data.json")) {
         Ok(f) => f,
         Err(e) => panic!("failed to read lat.data.json. {:?}", e),
     };
+
+    // Create a new writer for writing to the json file.
     let mut writer: BufWriter<File> = BufWriter::new(file);
     match serde_json::to_writer(&mut writer, &Map::new()) {
         Ok(_) => match writer.flush() {
@@ -92,11 +102,14 @@ fn empty_short_json(bin_path: &str) {
 // The remove_short_from_json() function is used
 // to remove a shortcut from the lat.data.json file.
 fn remove_short_from_json(bin_path: &str, short: &str) {
+    // Get the current json data
     let json: Value = read_json(bin_path);
     let json: &mut Map<String, Value> = &mut match json.as_object() {
         Some(obj) => obj.to_owned(),
         None => panic!("failed to read lat.data.json as object."),
     };
+
+    // Remove the shortcut from the map
     match json.remove(short) {
         Some(_) => println!("'{short}' removed from cache map... awaiting file update..."),
         None => panic!("failed to remove short from lat.data.json"),
@@ -124,8 +137,8 @@ fn remove_short_from_json(bin_path: &str, short: &str) {
 // will be used by the install functions.
 pub fn get_long_from_json(bin_path: &str, short: &str) -> Option<String> {
     let json: Value = read_json(bin_path);
-    if let Some(short) = json[short].as_str() {
-        return Some(short.to_string());
+    if let Some(long) = json[short].as_str() {
+        return Some(long.to_string());
     }
     return None;
 }

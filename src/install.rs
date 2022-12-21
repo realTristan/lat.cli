@@ -1,24 +1,9 @@
+use crate::global::http_get;
 use serde_json::Value;
 use std::env;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
-
-// Define the request client as a global variable
-lazy_static::lazy_static! {
-    static ref CLIENT: reqwest::Client = reqwest::Client::new();
-}
-
-// Send an http request to the provided url
-async fn http_get(url: &str) -> reqwest::Response {
-    return match CLIENT.get(url)
-        .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36")
-        .send().await 
-    {
-        Ok(r) => r,
-        Err(e) => panic!("failed to request provided url. {:?}", e),
-    };
-}
 
 // Get the current working directory. This is where
 // the folder containing the imports will be located.
@@ -27,9 +12,9 @@ fn get_current_dir() -> Option<String> {
     return match env::current_dir() {
         Ok(path) => match path.into_os_string().into_string() {
             Ok(p) => Some(p),
-            Err(_) => None
-        }
-        Err(_) => None
+            Err(_) => None,
+        },
+        Err(_) => None,
     };
 }
 
@@ -145,7 +130,7 @@ async fn create_import_with_repo(dir: &str, path: &str) {
 async fn get_import_url_from_repo(path: &str) -> Option<String> {
     // Get the http request response
     let resp: reqwest::Response = http_get(path).await;
-    
+
     // Get the response json as a serde_json::Value
     let json: Value = match resp.text().await {
         Ok(body) => match serde_json::from_str(&body) {
@@ -170,7 +155,6 @@ async fn get_import_url_from_repo(path: &str) -> Option<String> {
 
                 // If the name ends with .sty then
                 if name.ends_with(".sty\"") {
-
                     // Get the download url for the .sty file
                     match map.get("download_url") {
                         Some(download_url) => {
@@ -216,7 +200,7 @@ async fn get_import_contents(path: &str) -> String {
 async fn create_import_file(dir: &str, import: &str, contents: &str) {
     // If the import already exists, return the function.
     if import_already_exists(dir, import) {
-        return;
+        panic!("the import '{import}' already exists.")
     }
 
     // Create a new file with the name of the provided import.

@@ -1,4 +1,5 @@
 use std::env;
+mod global;
 mod install;
 mod short;
 mod update;

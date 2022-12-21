@@ -1,17 +1,20 @@
 use std::fs::{self, File};
 use std::io;
 
+use crate::global::http_get;
+
 // Initialize the update command
 pub async fn init(bin_path: &str) {
-    // Send the http request to the github url
-    let client: reqwest::Client = reqwest::Client::new();
-    let resp = client.get("https://raw.githubusercontent.com/realTristan/lat.cli/main/lat")
-        .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36")
-        .send().await;
-    let resp: reqwest::Response = match resp {
-        Ok(r) => r,
-        Err(e) => panic!("failed to fetch version url. {:?}", e),
-    };
+    // Depending on what operating system the user is on,
+    // change the file name from .exe to no .exe
+    let mut file_name: &str = "lat.exe";
+    if cfg!(target_os = "macos") {
+        file_name = "lat";
+    }
+
+    // Send the http request to the github exe url
+    let url: &str = "https://api.github.com/repos/lat-cli/lat/releases/latest";
+    let resp: reqwest::Response = http_get(url).await;
 
     // Get the request body
     let body = resp.text().await;
@@ -46,13 +49,6 @@ pub async fn init(bin_path: &str) {
     // If the copy to the temporary lat.tmp executable
     // was a success...
     if res > 0 {
-        // Depending on what operating system the user is on,
-        // change the file name from .exe to no .exe
-        let mut file_name: &str = "lat.exe";
-        if cfg!(target_os = "macos") {
-            file_name = "lat";
-        }
-
         // After removing the old lat executable...
         match fs::remove_file(format!("{bin_path}/{file_name}")) {
             Ok(_) => match fs::rename(format!("{bin_path}/lat.tmp"), format!("{bin_path}/{file_name}")) {
