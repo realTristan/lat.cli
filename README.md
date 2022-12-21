@@ -25,7 +25,7 @@ Import Using the Repository:
   $ lat -i https://github.com/realTristan/realtristan.sty
 
 
-Quick Import (github_user)/(repo and file name):
+Quick Import (github_user)/(repo name):
   $ lat -i realTristan/realtristan.sty
 
 
