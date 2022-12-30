@@ -1,15 +1,15 @@
 use crate::global::http_get;
 use serde_json::Value;
-use std::env;
-use std::fs;
-use std::fs::File;
-use std::io::Write;
+use std::{
+    fs::{self, File},
+    io::Write,
+};
 
 // Get the current working directory. This is where
 // the folder containing the imports will be located.
 // %CURRENT_DIR%/file.sty..
 fn get_current_dir() -> Option<String> {
-    return match env::current_dir() {
+    return match std::env::current_dir() {
         Ok(path) => match path.into_os_string().into_string() {
             Ok(p) => Some(p),
             Err(_) => None,

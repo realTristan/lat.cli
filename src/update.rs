@@ -1,5 +1,7 @@
-use std::fs::{self, File};
-use std::io;
+use std::{
+    io,
+    fs::{self, File}
+};
 
 use crate::global::http_get;
 

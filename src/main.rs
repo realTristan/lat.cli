@@ -1,4 +1,3 @@
-use std::env;
 mod global;
 mod install;
 mod short;
@@ -26,7 +25,7 @@ mod update;
 #[tokio::main]
 async fn main() {
     // Get the bin folder path buf
-    let path_buf = match env::current_exe() {
+    let path_buf = match std::env::current_exe() {
         Ok(buf) => buf,
         Err(e) => panic!("failed to fetch lat $PATH. {:?}", e),
     };
@@ -38,7 +37,7 @@ async fn main() {
     };
 
     // Get the provided arguments
-    let args: Vec<String> = env::args().collect();
+    let args: Vec<String> = std::env::args().collect();
 
     // Get the query (install, i, etc.)
     if args.len() < 2 {
