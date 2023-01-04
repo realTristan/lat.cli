@@ -5,27 +5,20 @@ use std::{
     io::Write,
 };
 
-// Get the current working directory. This is where
-// the folder containing the imports will be located.
-// %CURRENT_DIR%/file.sty..
-fn get_current_dir() -> Option<String> {
-    return match std::env::current_dir() {
+// Define the current working directory as a global variable
+lazy_static::lazy_static! {
+    static ref CURR_DIR: String = match std::env::current_dir() {
         Ok(path) => match path.into_os_string().into_string() {
-            Ok(p) => Some(p),
-            Err(_) => None,
+            Ok(p) => p,
+            Err(_) => panic!("failed to get current working directory."),
         },
-        Err(_) => None,
+        Err(_) => panic!("failed to get current working directory."),
     };
 }
 
+
 // Initialize the update command
 pub async fn init(path: &str) {
-    // Get current working directory
-    let dir: String = match get_current_dir() {
-        Some(d) => d,
-        None => panic!("failed to get current working directory."),
-    };
-
     // Convert the path to a mutable variable
     let mut path: String = path.to_string();
 
@@ -38,9 +31,9 @@ pub async fn init(path: &str) {
     if path.contains("github.com/") {
         if !path.starts_with("https://") {
             path = format!("https://{}", path);
-            return import_with_url(&dir, &path).await;
+            return import_with_url(&path).await;
         }
-        return import_with_url(&dir, &path).await;
+        return import_with_url(&path).await;
     }
 
     // Split the provided path to get the user and repo
@@ -52,13 +45,13 @@ pub async fn init(path: &str) {
     path = format!("https://github.com/{}/{}", user, repo);
 
     // Create the import file using the repo url
-    create_import_with_repo(&dir, &path).await;
+    create_import_with_repo(&path).await;
 }
 
 // The import_with_url() function is used to
 // import the provided file using the github
 // url the user provided.
-async fn import_with_url(dir: &str, path: &str) {
+async fn import_with_url(path: &str) {
     // Split the path to determine what type of
     // github url it is.
     let split_path: Vec<&str> = path.split("/").collect();
@@ -66,7 +59,7 @@ async fn import_with_url(dir: &str, path: &str) {
     // If the provided url is just the repo url...
     if split_path.len() <= 5 {
         // Create the .sty file from the repo content
-        return create_import_with_repo(dir, path).await;
+        return create_import_with_repo(path).await;
     }
 
     // Create a mutable path variable
@@ -83,7 +76,7 @@ async fn import_with_url(dir: &str, path: &str) {
     let contents: String = get_import_contents(&path).await;
 
     // Create new import file
-    create_import_file(dir, &import, &contents).await;
+    create_import_file(&import, &contents).await;
 }
 
 // The create_import_with_repo() function is used to
@@ -96,7 +89,7 @@ async fn import_with_url(dir: &str, path: &str) {
 // for that file is grabbed then used to get the content
 // of that file. The file contents is then copied to a
 // local file with that file name.
-async fn create_import_with_repo(dir: &str, path: &str) {
+async fn create_import_with_repo(path: &str) {
     let mut path: String = path.to_string();
 
     // If the provided url has .git on the end of it
@@ -119,7 +112,7 @@ async fn create_import_with_repo(dir: &str, path: &str) {
             let contents: String = get_import_contents(&path).await;
 
             // Create new import file
-            create_import_file(dir, &import, &contents).await;
+            create_import_file(&import, &contents).await;
         }
         None => panic!("failed to get import url from repo."),
     }
@@ -197,14 +190,16 @@ async fn get_import_contents(path: &str) -> String {
 // The create_import_file() is used to create the
 // new .sty file with the import name and write the
 // contents into the file
-async fn create_import_file(dir: &str, import: &str, contents: &str) {
+async fn create_import_file(import: &str, contents: &str) {
     // If the import already exists, return the function.
-    if import_already_exists(dir, import) {
+    if import_already_exists(import) {
         panic!("the import '{import}' already exists.")
     }
 
     // Create a new file with the name of the provided import.
-    let file = File::create(format!("{}/{}", dir, import));
+    let working_dir: String = CURR_DIR.to_string();
+    let file = File::create(format!("{}/{}", working_dir, import));
+    
     let mut file = match file {
         Ok(file) => file,
         Err(e) => panic!("failed to create new import file. {:?}", e),
@@ -223,8 +218,9 @@ async fn create_import_file(dir: &str, import: &str, contents: &str) {
 // is required to avoid file errors. I might change it
 // to overwrite the current file with the new import depending
 // on what's more convenient.
-fn import_already_exists(dir: &str, import: &str) -> bool {
-    let data = fs::read(format!("{}/{}", dir, import));
+fn import_already_exists(import: &str) -> bool {
+    let working_dir: String = CURR_DIR.to_string();
+    let data = fs::read(format!("{}/{}", working_dir, import));
     return match data {
         Ok(_) => true,
         Err(_) => false,
