@@ -2,7 +2,7 @@ use crate::global::http_get;
 use serde_json::Value;
 use std::{
     fs::{self, File},
-    io::Write,
+    io::Write
 };
 
 // Define the current working directory as a global variable
@@ -139,28 +139,94 @@ async fn get_import_url_from_repo(path: &str) -> Option<String> {
         None => panic!("failed to parse http response json."),
     };
 
+    // Declare an empty variables
+    let mut snippets_url: String = String::new();
+    let mut import_url: String = String::new();
+    let mut import_name: String = String::new();
+
     // Iterate over the array to find the .sty file
     for map in json {
         match map.get("name") {
-            Some(name) => {
-                // Convert the name to a string
-                let name: String = name.to_string();
+            None => (),
+            Some(n) => {
+                let name: String = n.to_string();
 
-                // If the name ends with .sty then
-                if name.ends_with(".sty\"") {
-                    // Get the download url for the .sty file
-                    match map.get("download_url") {
-                        Some(download_url) => {
-                            return Some(download_url.to_string().replace("\"", ""));
-                        }
-                        None => panic!("failed to get .sty file download url."),
+                // Check for snippets.json
+                if name.contains("snippets") {
+                    snippets_url = match map.get("download_url") {
+                        Some(download_url) => download_url.to_string().replace("\"", ""),
+                        None => snippets_url,
+                    }
+                }
+
+                // Else, if the file name ends with .sty
+                else if name.ends_with(".sty\"") {
+                    // Get the import name
+                    import_name = name
+                        .replace("\"", "")
+                        .replace(".sty", "");
+
+                    // Get the download url
+                    import_url = match map.get("download_url") {
+                        Some(download_url) => download_url.to_string().replace("\"", ""),
+                        None => import_url
                     }
                 }
             }
-            None => panic!("failed to get name."),
         }
     }
-    return None;
+
+    // Check if the snippets url is not empty
+    if snippets_url.len() > 0 {
+        import_snippets_from_repo(&import_name, &snippets_url).await
+    }
+
+    // Return the import url
+    match import_url.len() > 0 {
+        true => Some(import_url),
+        false => None,
+    }
+}
+
+// The import_snippets_from_repo() function is used to
+// import the snippets.json file from the provided
+// github repo url into the .vscode directory.
+async fn import_snippets_from_repo(name: &str, url: &str) {
+    // Send an http get request to the provided url
+    let resp = http_get(&url).await;
+
+    // Then parse the response json
+    let json: Value = match resp.text().await {
+        Ok(body) => match serde_json::from_str(&body) {
+            Ok(j) => j,
+            Err(e) => return println!("failed to parse response json. {:?}", e),
+        },
+        Err(e) => return println!("failed to extract http response body. {:?}", e),
+    };
+
+    // Check if the .vscode directory exists
+    match std::fs::metadata(format!("{}/.vscode", CURR_DIR.to_string())) {
+        Ok(_) => (),
+        Err(_) => {
+            match std::fs::create_dir(format!("{}/.vscode", CURR_DIR.to_string())) {
+                Ok(_) => (),
+                Err(e) => return println!("failed to create .vscode directory. {:?}", e),
+            }
+        }
+    }
+
+    // Create the snippets file for the import
+    match File::create(format!(
+        "{}/.vscode/{}.code-snippets", CURR_DIR.to_string(), name)
+    ) {
+        Ok(mut file) => {
+            match file.write_all(json.to_string().as_bytes()) {
+                Ok(_) => println!("imported snippets file."),
+                Err(e) => return println!("failed to write to snippets file. {:?}", e),
+            }
+        }
+        Err(e) => return println!("failed to create snippets file. {:?}", e),
+    }
 }
 
 // The extract_import_name() function is used
@@ -193,8 +259,17 @@ async fn get_import_contents(path: &str) -> String {
 async fn create_import_file(import: &str, contents: &str) {
     // If the import already exists, return the function.
     if import_already_exists(import) {
-        panic!("the import '{import}' already exists.")
-    }
+        println!("the import '{import}' already exists, would you like to install it anyways? (y/n)");
+        let mut input: String = String::new();
+        match std::io::stdin().read_line(&mut input) {
+            Ok(_) => {
+                if !input.to_lowercase().contains("y") {
+                    std::process::exit(1);
+                }
+            }
+            Err(e) => panic!("failed to read user input. {:?}", e),
+        };
+    };
 
     // Create a new file with the name of the provided import.
     let working_dir: String = CURR_DIR.to_string();
