@@ -5,7 +5,7 @@
 - lat.cli is a fast and easy-to-use CLI Tool for importing .sty files from github into your project.
 - lat.cli makes importing simple. No Urls. Easy Imports. Customizable Shortcuts.
 - lat.cli was built with Rust to ensure minimal memory usage and maximum speed.
-
+ 
 # Install
 ```
 MacOS:
