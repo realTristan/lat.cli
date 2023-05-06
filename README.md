@@ -13,8 +13,8 @@ MacOS:
   
 Windows:
   $ mkdir C:\lat.cli
-  $ curl "https://github.com/realTristan/lat.cli/blob/main/lat.exe?raw=true" -o C:\lat.cli\lat.exe
-  $ Add "C:\lat.cli" to Environment Variables
+  $ curl "https://github.com/realTristan/lat.cli/blob/main/lat.exe?raw=true" -o C:\lat.exe
+  $ set PATH=%PATH%;C:\lat.exe
 ```
 
 # Example Import
