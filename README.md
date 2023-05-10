@@ -7,7 +7,7 @@
 - lat.cli was built with Rust to ensure minimal memory usage and maximum speed.
  
 # Install
-```go
+```
 MacOS:
   $ curl "https://github.com/realTristan/lat.cli/blob/main/lat?raw=true" -o /usr/local/bin/lat
   
@@ -18,7 +18,7 @@ Windows:
 ```
 
 # Example Import
-```go
+```
 $ cd your_latex_directory
 
 Import Using the Repository:
@@ -34,7 +34,7 @@ Import Using the File Url:
 ```
 
 # Example Shortcuts
-```go
+```
 $ lat -short -new rt realTristan/realtristan.sty
 $ lat -i rt
 
