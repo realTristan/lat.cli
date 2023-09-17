@@ -15,8 +15,8 @@ $ curl "https://github.com/realTristan/lat.cli/blob/main/lat?raw=true" -o /usr/l
 ### Windows
 ```
   $ mkdir C:\lat.cli
-  $ curl "https://github.com/realTristan/lat.cli/blob/main/lat.exe?raw=true" -o C:\lat.exe
-  $ set PATH=%PATH%;C:\lat.exe
+  $ curl "https://github.com/realTristan/lat.cli/blob/main/lat.exe?raw=true" -o C:\lat.cli\lat.exe
+  $ set PATH=%PATH%;C:\lat.cli\lat.exe
 ```
 
 # Example Import
