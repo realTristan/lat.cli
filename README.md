@@ -6,11 +6,13 @@
 - lat.cli makes importing simple. No Urls. Easy Imports. Customizable Shortcuts.
 - lat.cli was built with Rust to ensure minimal memory usage and maximum speed.
  
-# Install
-## MacOS
-`$ curl "https://github.com/realTristan/lat.cli/blob/main/lat?raw=true" -o /usr/local/bin/lat`
+## Install
+### MacOS
+```
+$ curl "https://github.com/realTristan/lat.cli/blob/main/lat?raw=true" -o /usr/local/bin/lat
+```
 
-## Windows
+### Windows
 ```
   $ mkdir C:\lat.cli
   $ curl "https://github.com/realTristan/lat.cli/blob/main/lat.exe?raw=true" -o C:\lat.exe
