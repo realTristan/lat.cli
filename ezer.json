@@ -1,0 +1,11 @@
+{
+  "tab": "Tools",
+  "install": {
+    "select_dir": false,
+    "mac": [
+      "curl https://github.com/realTristan/lat.cli/blob/main/lat?raw=true -o /usr/local/bin/lat"
+    ],
+    "windows": [
+    ]
+  }
+}
