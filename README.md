@@ -9,7 +9,7 @@
 ## Install
 ### MacOS
 ```
-$ curl "https://github.com/realTristan/lat.cli/blob/main/lat?raw=true" -o /usr/local/bin/lat
+$ curl https://github.com/realTristan/lat.cli/blob/main/lat?raw=true -o /usr/local/bin/lat
 ```
 
 ### Windows
